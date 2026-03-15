@@ -1,0 +1,191 @@
+name: GitHub Classroom Workflow
+
+on:
+  push:
+    branches: [ main ]
+    paths-ignore:
+      - '.github/workflows/*'
+  pull_request:
+    branches: [ main ]
+
+permissions:
+  checks: write
+  actions: read
+  contents: read
+
+jobs:
+  Checking-Solution:
+    runs-on: gtest
+    timeout-minutes: 3
+    steps:
+      - name: Get repository code
+        uses: actions/checkout@v4
+      - name: Check repository clean
+        run: bash ./scripts/check_clean.sh
+      - name: Check requirements
+        run: |
+             !(grep -qwRE --include=*.{cc,cpp,h,hpp} '<vector>|<list>|<string>|<algorithm>|<stack>|<queue>|<deque>|<set>|<map>|<bits' ./* ) &&  (echo \"Check - OK\" )  || ( echo \"Forbiden STL containers\" && exit 9 )
+      - name: Check code style
+        run: |
+             clang-format --version
+             find "." \( -name '*.cpp' -o -name '*.h*' \) -print0 | xargs -0 clang-format --dry-run --Werror --verbose
+      - name: Clean previous CMake cache
+        run: |
+          rm -rf build
+      - name: Code linting
+        run: |
+          mkdir -p build
+          cmake -S . -B build -DCMAKE_EXPORT_COMPILE_COMMANDS=ON
+          cppcheck --enable=all --inconclusive --std=c++20 -i build .
+      - name: Build
+        run: bash ./scripts/build.sh
+      - name: Test 1
+        id: test-1
+        uses: classroom-resources/autograding-command-grader@v1
+        with:
+          test-name: Test 1
+          setup-command: 'unzip -q tests/tests.zip -d tests'
+          command: "timeout 1 ./build/copypaste tests/text1.txt tests/commands1.txt output.txt && cmp output.txt tests/out1.txt"
+          timeout: 1
+          max-score: 1
+      - name: Test 2
+        id: test-2
+        uses: classroom-resources/autograding-command-grader@v1
+        with:
+          test-name: Test 2
+          setup-command: ''
+          command: "timeout 1 ./build/copypaste tests/text2.txt tests/commands2.txt output.txt && cmp output.txt tests/out2.txt"
+          timeout: 1
+          max-score: 1
+      - name: Test 3
+        id: test-3
+        uses: classroom-resources/autograding-command-grader@v1
+        with:
+          test-name: Test 3
+          setup-command: ''
+          command: "timeout 1 ./build/copypaste tests/text3.txt tests/commands3.txt output.txt && cmp output.txt tests/out3.txt"
+          timeout: 1
+          max-score: 1
+      - name: Test 4
+        id: test-4
+        uses: classroom-resources/autograding-command-grader@v1
+        with:
+          test-name: Test 4
+          setup-command: ''
+          command: "timeout 1 ./build/copypaste tests/text4.txt tests/commands4.txt output.txt && cmp output.txt tests/out4.txt"
+          timeout: 1
+          max-score: 1
+      - name: Test 5
+        id: test-5
+        uses: classroom-resources/autograding-command-grader@v1
+        with:
+          test-name: Test 5
+          setup-command: ''
+          command: "timeout 1 ./build/copypaste tests/text4.txt tests/commands5.txt output.txt && cmp output.txt tests/out5.txt"
+          timeout: 1
+          max-score: 1
+      - name: Test 6
+        id: test-6
+        uses: classroom-resources/autograding-command-grader@v1
+        with:
+          test-name: Test 6
+          setup-command: ''
+          command: "timeout 1 ./build/copypaste tests/text4.txt tests/commands6.txt output.txt && cmp output.txt tests/out6.txt"
+          timeout: 1
+          max-score: 1
+      - name: Test 7
+        id: test-7
+        uses: classroom-resources/autograding-command-grader@v1
+        with:
+          test-name: Test 7
+          setup-command: ''
+          command: "timeout 1 ./build/copypaste tests/text4.txt tests/commands7.txt output.txt && cmp output.txt tests/out7.txt"
+          timeout: 1
+          max-score: 1
+      - name: Test 8
+        id: test-8
+        uses: classroom-resources/autograding-command-grader@v1
+        with:
+          test-name: Test 8
+          setup-command: ''
+          command: "timeout 1 ./build/copypaste tests/text4.txt tests/commands8.txt output.txt && cmp output.txt tests/out8.txt"
+          timeout: 1
+          max-score: 1
+      - name: Test 9
+        id: test-9
+        uses: classroom-resources/autograding-command-grader@v1
+        with:
+          test-name: Test 9
+          setup-command: ''
+          command: "timeout 1 ./build/copypaste tests/text4.txt tests/commands9.txt output.txt && cmp output.txt tests/out9.txt"
+          timeout: 1
+          max-score: 1
+      - name: Test 10
+        id: test-10
+        uses: classroom-resources/autograding-command-grader@v1
+        with:
+          test-name: Test 10 (b.t.)
+          setup-command: ''
+          command: "timeout 1 ./build/copypaste tests/bible.txt tests/commands10.txt output.txt && cmp output.txt tests/out10.txt"
+          timeout: 1
+          max-score: 1
+      - name: Test 11
+        id: test-11
+        uses: classroom-resources/autograding-command-grader@v1
+        with:
+          test-name: Test 11 (b.t.)
+          setup-command: ''
+          command: "timeout 2 ./build/copypaste tests/bible.txt tests/commands11.txt output.txt && cmp output.txt tests/out11.txt"
+          timeout: 1
+          max-score: 1
+      - name: Test 12
+        id: test-12
+        uses: classroom-resources/autograding-command-grader@v1
+        with:
+          test-name: Test 12 (b.t.)
+          setup-command: ''
+          command: "timeout 2 ./build/copypaste tests/bible.txt tests/commands12.txt output.txt && cmp output.txt tests/out12.txt"
+          timeout: 1
+          max-score: 1
+      - name: Test 13
+        id: test-13
+        uses: classroom-resources/autograding-command-grader@v1
+        with:
+          test-name: Test 13 (b.t.)
+          setup-command: ''
+          command: "timeout 2 ./build/copypaste tests/alice29.txt tests/commands13.txt output.txt && cmp output.txt tests/out13.txt"
+          timeout: 1
+          max-score: 1
+      - name: Autograding Reporter
+        uses: classroom-resources/autograding-grading-reporter@v1
+        env:
+          TEST-1_RESULTS: "${{steps.test-1.outputs.result}}"
+          TEST-2_RESULTS: "${{steps.test-2.outputs.result}}"
+          TEST-3_RESULTS: "${{steps.test-3.outputs.result}}"
+          TEST-4_RESULTS: "${{steps.test-4.outputs.result}}"
+          TEST-5_RESULTS: "${{steps.test-5.outputs.result}}"
+          TEST-6_RESULTS: "${{steps.test-6.outputs.result}}"
+          TEST-7_RESULTS: "${{steps.test-7.outputs.result}}"
+          TEST-8_RESULTS: "${{steps.test-8.outputs.result}}"
+          TEST-9_RESULTS: "${{steps.test-9.outputs.result}}"
+          TEST-10_RESULTS: "${{steps.test-10.outputs.result}}"
+          TEST-11_RESULTS: "${{steps.test-11.outputs.result}}"
+          TEST-12_RESULTS: "${{steps.test-12.outputs.result}}"
+          TEST-13_RESULTS: "${{steps.test-13.outputs.result}}"
+        with:
+          runners: test-1,test-2,test-3,test-4,test-5,test-6,test-7,test-8,test-9,test-10,test-11,test-12,test-13
+      - name: Memory leaks
+        run: |
+             valgrind --tool=memcheck --leak-check=full --undef-value-errors=no --error-exitcode=111 ./build/copypaste tests/alice29.txt tests/commands13.txt output.txt
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: CPD
+        uses: amcp-pit/cpd-action@v1
+        id: cpd
+        with:
+          repository: ${{ github.repository }}
+          collection: ${{ github.repository_owner  }}
+      - name: Clean
+        run: |
+             rm -rf ./* || true
+             rm -rf ./.??* || true
