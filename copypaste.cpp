@@ -1,5 +1,5 @@
 ﻿#include <iostream>
-#include <cstring>
+
 #include "edit.h"
 
 int main(int argc, char* argv[]) {
@@ -26,12 +26,14 @@ int main(int argc, char* argv[]) {
     return 4;
   }
 
-  // =============================== Parse the input and commands ===============================
+  // ===============================
+  // Parse the input and commands
+  // ===============================
   char ch;
-  char* str =  new char[1001]{0};
+  char* str = new char[1001]{0};
   int i = 0;
   Vector<char*> inBuffer;
-  while ((ch = input.get()) != EOF) {
+  while ((ch = char(input.get())) != EOF) {
     if (ch == '\n') {
       str[i] = '\0';  // cut remnants of previous string
 
@@ -47,10 +49,8 @@ int main(int argc, char* argv[]) {
   }
   input.close();
 
-  // Don't save last line: '\n'
-
   Vector<char*> cmdBuffer;
-  while ((ch = commands.get()) != EOF) {
+  while ((ch = char(commands.get())) != EOF) {
     if (ch == '\n') {
       str[i] = '\0';
 
@@ -69,20 +69,28 @@ int main(int argc, char* argv[]) {
   char* copy = new char[i + 1]{0};
   std::memcpy(copy, str, i + 1);
   cmdBuffer.push_back(copy);
-  
+
   delete[] str;
   // ~Edit will free char* copy
 
-  // ==================================== Edit ====================================
+  // ====================================
+  // Edit
+  // ====================================
   Edit edit(inBuffer);
   for (uint64_t i = 0; i < cmdBuffer.get_size(); i++) {
-      auto command = cmdBuffer[i];
+    auto* command = cmdBuffer[i];
 
-      if (std::strcmp(command, "Up") == 0) { edit.Up(); }
-      else if (std::strcmp(command, "Down") == 0) { edit.Down(); }
-      else if (std::strcmp(command, "Ctrl+X") == 0) { edit.Cut(); }
-      else if (std::strcmp(command, "Ctrl+V") == 0) { edit.Paste(); }
-      else if (std::strcmp(command, "Shift") == 0) { edit.startShift(); }
+    if (std::strcmp(command, "Up") == 0) {
+      edit.Up();
+    } else if (std::strcmp(command, "Down") == 0) {
+      edit.Down();
+    } else if (std::strcmp(command, "Ctrl+X") == 0) {
+      edit.Cut();
+    } else if (std::strcmp(command, "Ctrl+V") == 0) {
+      edit.Paste();
+    } else if (std::strcmp(command, "Shift") == 0) {
+      edit.startShift();
+    }
   }
 
   Edit::editPrint(edit, output);

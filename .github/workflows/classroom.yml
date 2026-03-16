@@ -20,11 +20,21 @@ jobs:
     steps:
       - name: Get repository code
         uses: actions/checkout@v4
+      - name: Normalize shell scripts line endings & permissions
+        run: |
+          # convert CRLF -> LF for all .sh files in the repo copy
+          find . -type f -name '*.sh' -exec sed -i 's/\r$//' {} + || true
+          # make sure the scripts are executable
+          find . -type f -name '*.sh' -exec chmod +x {} + || true  
       - name: Check repository clean
         run: bash ./scripts/check_clean.sh
       - name: Check requirements
         run: |
              !(grep -qwRE --include=*.{cc,cpp,h,hpp} '<vector>|<list>|<string>|<algorithm>|<stack>|<queue>|<deque>|<set>|<map>|<bits' ./* ) &&  (echo \"Check - OK\" )  || ( echo \"Forbiden STL containers\" && exit 9 )
+      - name: Install dependencies
+        run: |
+          apt-get update
+          apt-get install -y clang-format cmake cppcheck valgrind
       - name: Check code style
         run: |
              clang-format --version
@@ -39,12 +49,15 @@ jobs:
           cppcheck --enable=all --inconclusive --std=c++20 -i build .
       - name: Build
         run: bash ./scripts/build.sh
+      - name: Extract tests
+        run: |
+          unzip -q tests/tests.zip -d tests
+          find tests -type f -exec sed -i 's/\r$//' {} +  
       - name: Test 1
         id: test-1
         uses: classroom-resources/autograding-command-grader@v1
         with:
           test-name: Test 1
-          setup-command: 'unzip -q tests/tests.zip -d tests'
           command: "timeout 1 ./build/copypaste tests/text1.txt tests/commands1.txt output.txt && cmp output.txt tests/out1.txt"
           timeout: 1
           max-score: 1
