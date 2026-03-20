@@ -30,11 +30,16 @@ int main(int argc, char* argv[]) {
   // Parse the input and commands
   // ===============================
   char ch;
-  char* str = new char[1001]{0};
+  char* str = new char[1003]{0};
   int i = 0;
   Vector<char*> inBuffer;
   while ((ch = char(input.get())) != EOF) {
+    if (ch == '\r') {
+      str[i++] = '\r';
+    }
+
     if (ch == '\n') {
+      str[i++] = '\n';
       str[i] = '\0';  // cut remnants of previous string
 
       // inBuffer is storing pointers: store distinct allocation each line
@@ -65,11 +70,6 @@ int main(int argc, char* argv[]) {
   }
   commands.close();
 
-  str[i] = '\0';
-  char* copy = new char[i + 1]{0};
-  std::memcpy(copy, str, i + 1);
-  cmdBuffer.push_back(copy);
-
   delete[] str;
   // ~Edit will free char* copy
 
@@ -94,6 +94,11 @@ int main(int argc, char* argv[]) {
   }
 
   Edit::editPrint(edit, output);
+
+  for (uint64_t i = 0; i < cmdBuffer.get_size(); i++) {
+    auto* ptr = cmdBuffer[i];
+    delete[] ptr;
+  }
 
   return 0;
 }

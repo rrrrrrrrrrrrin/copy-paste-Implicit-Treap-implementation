@@ -45,7 +45,7 @@ class Edit {
   void Down() {
     uint64_t n = ImplicitTreap::get_size(root);
 
-    if (ptr + 1 < int64_t(n)) {
+    if (ptr + 1 <= int64_t(n)) {
       ++ptr;
     }
   }
@@ -69,7 +69,7 @@ class Edit {
     }
 
     if (start == -1) {  // no selection -> cut the current line at ptr
-      if (ptr < int64_t(n - 1)) {  // don't cut the last line if cursor is on it
+      if (ptr <= int64_t(n)) {
         auto q1 = ImplicitTreap::split(root, uint64_t(ptr));
         auto q2 = ImplicitTreap::split(q1[1], 1);
         if (clipboard != nullptr) {
@@ -93,7 +93,7 @@ class Edit {
     // q2[0] — selection, q2[1] — subtree after selection
     auto q1 = ImplicitTreap::split(root, l);
 
-    // r - l - the amount of elems in selection
+    // r - l - the amount of lines in selection
     auto q2 = ImplicitTreap::split(q1[1], r - l);
 
     if (clipboard != nullptr) {
@@ -111,7 +111,21 @@ class Edit {
 
   // Ctrl+V
   void Paste() {
+    // if selection exists, cut it first
+    // (don't call Cut() as it will overwrite clipboard)
+    if (start != -1) {
+      int64_t l = std::min(start, ptr);
+      int64_t r = std::max(start, ptr);
+
+      auto q1 = ImplicitTreap::split(root, uint64_t(l));
+      auto q2 = ImplicitTreap::split(q1[1], uint64_t(r - l + 1));
+
+      root = ImplicitTreap::join(q1[0], q2[1]);
+      ptr = l;
+    }
+
     if (clipboard == nullptr) {
+      start = -1;
       return;
     }
 
@@ -122,7 +136,7 @@ class Edit {
 
     root = ImplicitTreap::join(q[0], ImplicitTreap::join(clipboard_copy, q[1]));
 
-    ptr += ImplicitTreap::get_size(clipboard_copy);  // move cursor
+    ptr += int64_t(ImplicitTreap::get_size(clipboard));  // move cursor
 
     start = -1;
   }

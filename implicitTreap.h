@@ -79,7 +79,7 @@ class ImplicitTreap {
     }
   }
 
-  static ImplicitTreap* join(ImplicitTreap* left, ImplicitTreap* right);
+  static ImplicitTreap* join(ImplicitTreap* l, ImplicitTreap* r);
   static Pair<ImplicitTreap*> split(ImplicitTreap* t, uint64_t key);
 
   static void free_treap(ImplicitTreap* t) {
@@ -101,7 +101,7 @@ class ImplicitTreap {
     }
 
     print(t->left, out);
-    out << t->line_ << '\n';
+    out << t->line_;
     print(t->right, out);
   }
 };
