@@ -10,14 +10,15 @@ class Edit {
   ImplicitTreap* clipboard = nullptr;  // clipboard buffer
 
  public:
-  explicit Edit(const Vector<char*>& copy) {
+  explicit Edit(const Vector<char*>& inBuffer,
+                const Vector<NewLine>& new_lines) {
     ptr = 0;
     start = -1;
     root = nullptr;
     clipboard = nullptr;
 
-    for (uint64_t i = 0; i < copy.get_size(); i++) {
-      ImplicitTreap* node = new ImplicitTreap(copy[i]);
+    for (uint64_t i = 0; i < inBuffer.get_size(); i++) {
+      ImplicitTreap* node = new ImplicitTreap(inBuffer[i], new_lines[i]);
       root = ImplicitTreap::join(root, node);
     }
   }

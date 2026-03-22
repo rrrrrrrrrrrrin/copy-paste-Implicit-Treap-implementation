@@ -6,6 +6,12 @@
 
 #include "vector.h"
 
+enum class NewLine {
+  CRLF,  // "\r\n"
+  LF,    // '\n'
+  CR     // carriage return '\r'
+};
+
 // Treap is tree + heap
 //
 // Stores pairs (x,y):
@@ -28,15 +34,20 @@
 class ImplicitTreap {
  private:
   char* line_;
-  uint64_t size = 1;  // subtree size; used to calculate index which is key
-  uint64_t prior =
-      0;  // random priority to keep tree balanced (operation O(logn))
+  NewLine new_line_;
+
+  // subtree size; used to calculate index which is key
+  uint64_t size = 1;
+  // random priority to keep tree balanced (operation O(logn))
+  uint64_t prior = 0;
+
   ImplicitTreap* left = nullptr;
   ImplicitTreap* right = nullptr;
 
  public:
-  explicit ImplicitTreap(char* line)
+  explicit ImplicitTreap(char* line, NewLine new_line)
       : line_(line),
+        new_line_(new_line),
         size(1),
         prior(std::rand()),
         left{nullptr},
@@ -58,7 +69,7 @@ class ImplicitTreap {
     size_t L = std::strlen(t->line_);
     char* str = new char[L + 1]{0};
     std::memcpy(str, t->line_, L + 1);
-    ImplicitTreap* node = new ImplicitTreap(str);
+    ImplicitTreap* node = new ImplicitTreap(str, t->new_line_);
 
     node->prior = t->prior;
 
@@ -69,6 +80,8 @@ class ImplicitTreap {
 
     return node;
   }
+
+  static NewLine get_new_line(ImplicitTreap* t) { return t->new_line_; }
 
   static uint64_t get_size(ImplicitTreap* t) {
     return t != nullptr ? t->size : 0;
@@ -101,7 +114,16 @@ class ImplicitTreap {
     }
 
     print(t->left, out);
+
     out << t->line_;
+    if (get_new_line(t) == NewLine::CRLF) {
+      out << "\r\n";
+    } else if (get_new_line(t) == NewLine::LF) {
+      out << '\n';
+    } else {
+      out << '\r';
+    }
+
     print(t->right, out);
   }
 };

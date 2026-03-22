@@ -20,6 +20,12 @@ jobs:
     steps:
       - name: Get repository code
         uses: actions/checkout@v4
+      - name: Normalize shell scripts line endings & permissions
+        run: |
+          # convert CRLF -> LF for all .sh files in the repo copy
+          find . -type f -name '*.sh' -exec sed -i 's/\r$//' {} + || true
+          # make sure the scripts are executable
+          find . -type f -name '*.sh' -exec chmod +x {} + || true  
       - name: Check repository clean
         run: bash ./scripts/check_clean.sh
       - name: Check requirements
